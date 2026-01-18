@@ -1,6 +1,6 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from schemas import ChatRequest, ChatResponse, DiscoverRequest, DiscoverResponse, ContactRequest
 from services.intent import classify_service_type
@@ -50,15 +50,16 @@ async def discover(payload: DiscoverRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/contact")
-async def contact(payload: ContactRequest):
+async def contact(payload: ContactRequest, background_tasks: BackgroundTasks):
     try:
-        send_contact_email(
-            name=payload.name,
-            email=payload.email,
-            subject=payload.subject,
-            message=payload.message
+        background_tasks.add_task(
+            send_contact_email,
+            payload.name,
+            payload.email,
+            payload.subject,
+            payload.message
         )
 
-        return {"success": True, "message": "Email sent successfully"}
+        return {"success": True, "message": "Email queued"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
