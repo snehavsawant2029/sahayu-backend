@@ -4,7 +4,7 @@ A FastAPI-based backend service that powers Sahayu, providing location-based ser
 
 ## 🔗 Related Repositories
 
-**Frontend Application**: https://github.com/snehavsawant2029/care-connect-ai
+**Frontend Application**: https://github.com/snehavsawant2029/sahayu-frontend
 
 This backend API serves the Sahayu frontend with all data processing, external API integrations, and AI-powered recommendations.
 
