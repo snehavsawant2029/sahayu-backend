@@ -19,6 +19,9 @@ def send_contact_email(name: str, email: str, subject: str, message: str):
     msg['To'] = SMTP_TO
 
     context = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+
+    # Use STARTTLS on port 587 instead of SSL on 465
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+        server.starttls(context=context)  # Upgrade to secure TLS
         server.login(SMTP_USER, SMTP_PASS)
         server.sendmail(SMTP_USER, SMTP_TO, msg.as_string())
