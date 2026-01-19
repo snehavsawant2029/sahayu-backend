@@ -1,27 +1,24 @@
 import os
-import ssl
-import smtplib
-from email.mime.text import MIMEText
-from dotenv import load_dotenv
+import resend
 
-load_dotenv()
+resend.api_key = os.getenv("RESEND_API_KEY")
 
-SMTP_USER = os.getenv("SMTP_USER")
-SMTP_PASS = os.getenv("SMTP_PASS")
-SMTP_TO = os.getenv("SMTP_TO") or SMTP_USER
+SMTP_TO = os.getenv("SMTP_TO")  # puramayashasvi@gmail.com
 
 def send_contact_email(name: str, email: str, subject: str, message: str):
     body = f"Name: {name}\nEmail: {email}\n\nMessage:\n{message}"
-
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = SMTP_USER
-    msg['To'] = SMTP_TO
-
-    context = ssl.create_default_context()
-
-    # Use STARTTLS on port 587 instead of SSL on 465
-    with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
-        server.starttls(context=context)  # Upgrade to secure TLS
-        server.login(SMTP_USER, SMTP_PASS)
-        server.sendmail(SMTP_USER, SMTP_TO, msg.as_string())
+    
+    try:
+        params = {
+            "from": "onboarding@resend.dev",  # ← Changed this to Resend's test domain
+            "to": [SMTP_TO],
+            "subject": subject,
+            "text": body,
+            "reply_to": email
+        }
+        
+        response = resend.Emails.send(params)
+        return response
+    except Exception as e:
+        print(f"Error: {e}")
+        raise
